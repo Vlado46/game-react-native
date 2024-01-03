@@ -1,4 +1,10 @@
-import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Title from "../components/ui/Title";
 import { useEffect, useState } from "react";
@@ -25,6 +31,7 @@ const GameScreen = ({ userNum, gameOverHandler }) => {
   const initialGuess = generateRandomBetween(1, 100, userNum);
   const [currGuess, setCurrGuess] = useState(initialGuess);
   const [guessRounds, setGuessRounds] = useState([initialGuess]);
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     if (currGuess === userNum) {
@@ -63,9 +70,8 @@ const GameScreen = ({ userNum, gameOverHandler }) => {
 
   const guessLength = guessRounds.length;
 
-  return (
-    <View style={styles.screen}>
-      <Title>Opponent's Guess</Title>
+  let content = (
+    <>
       <NumContainer>{currGuess}</NumContainer>
       <Card>
         <Instruction style={styles.instText}>Higher or lower?</Instruction>
@@ -82,6 +88,33 @@ const GameScreen = ({ userNum, gameOverHandler }) => {
           </View>
         </View>
       </Card>
+    </>
+  );
+
+  if (width > 500) {
+    content = (
+      <>
+        <View style={styles.btnsWide}>
+          <View style={styles.btn}>
+            <PrimaryBtn onPress={nextGuessHandler.bind(this, "lower")}>
+              <Ionicons name="md-remove" size={24} color="white" />
+            </PrimaryBtn>
+          </View>
+          <NumContainer>{currGuess}</NumContainer>
+          <View style={styles.btn}>
+            <PrimaryBtn onPress={nextGuessHandler.bind(this, "greater")}>
+              <Ionicons name="md-add" size={24} color="white" />
+            </PrimaryBtn>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <Title>Opponent's Guess</Title>
+      {content}
       <View style={styles.list}>
         <FlatList
           data={guessRounds}
@@ -104,12 +137,17 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: 24,
+    alignItems: "center",
   },
   btns: {
     flexDirection: "row",
   },
   btn: {
     flex: 1,
+  },
+  btnsWide: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   instText: {
     marginBottom: 12,
